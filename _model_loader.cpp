@@ -1,5 +1,5 @@
 #include "_model_loader.h"
-#include "include/tinyobjloader/tiny_obj_loader.h"
+#include "tiny_obj_loader.h"
 
 #include <iostream>
 #include <cassert>
