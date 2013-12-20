@@ -29,17 +29,17 @@ ELSE(APPLE)
 ENDIF(APPLE)
 
 set(engine_HEADER
-    _model.h
-    _model_loader.h
-    _object.h
-    _primitive.h
-    tiny_obj_loader.h)
+    src/Model.h
+    src/ModelLoader.h
+    src/Object.h
+    src/Primitive.h
+    src/tiny_obj_loader.h)
 
 set(engine_SOURCE
-    _model.cpp
-    _model_loader.cpp
-    _object.cpp
-    tiny_obj_loader.cc)
+    src/Model.cpp
+    src/ModelLoader.cpp
+    src/Object.cpp
+    src/tiny_obj_loader.cc)
 
 add_executable(engine
     ${engine_SOURCE}
