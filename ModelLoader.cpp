@@ -1,5 +1,5 @@
-#include "_model_loader.h"
 #include "tiny_obj_loader.h"
+#include "ModelLoader.h"
 
 #include <iostream>
 #include <cassert>
@@ -71,7 +71,7 @@ std::vector<Model> ModelLoader::loadModel(const char *filepath) {
 
 }
 
-
+/*
 int main(int argc, char *argv[]) {
 
     try {
@@ -81,3 +81,4 @@ int main(int argc, char *argv[]) {
         std::cerr << "Exception #" << e << std::endl;
     }
 }
+*/

@@ -1,4 +1,4 @@
-#include "_model.h"
+#include "Model.h"
 
 std::vector<Vertex> Model::vert() {
     return this->vertices;

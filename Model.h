@@ -1,6 +1,6 @@
 #include <vector>
 
-#include "_primitive.h"
+#include "Primitive.h"
 
 class Model {
     std::vector<Vertex> vertices;

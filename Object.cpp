@@ -1,4 +1,4 @@
-#include "_object.h"
+#include "Object.h"
 
 Object::Object(std::string name, bool visibility) {
     this->objName = name;
