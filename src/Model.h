@@ -1,21 +1,33 @@
+#ifndef __MODEL_H__
+#define __MODEL_H__
+
 #include <vector>
 
-#include "Primitive.h"
+#include "Vertex.h"
 
-class Model {
-    std::vector<Vertex> vertices;
-    std::vector<int>    indices;
+namespace ILEngine {
 
-public:
-    std::vector<Vertex> vert();
-    std::vector<int>    indi();
+    class Model {
+    public:
+        std::vector<Vertex> vertices;
+        std::vector<int>    indices;
 
-    std::vector<Vertex> clearVert();
-    std::vector<int>    clearIndi();
+        Model();
+        Model(std::vector<Vertex>, std::vector<int>);
 
-    void addVert(Vertex);
-    void addIndi(int);
+        std::vector<Vertex> clearVert();
+        std::vector<int>    clearIndi();
 
-    void setVert(std::vector<Vertex>);
-    void setIndi(std::vector<int>);
-};
+        void addVert(Vertex);
+        void addIndi(int);
+
+        void setVert(std::vector<Vertex>);
+        void setIndi(std::vector<int>);
+
+        bool operator==(const Model &) const;
+        bool operator!=(const Model &) const;
+    };
+
+}
+
+#endif

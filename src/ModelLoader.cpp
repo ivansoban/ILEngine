@@ -4,6 +4,8 @@
 #include <iostream>
 #include <cassert>
 
+namespace ILEngine {
+
 std::vector<Model> ModelLoader::loadModel(const char *filepath) {
     std::cout << "Loading: " << filepath << std::endl;
 
@@ -13,7 +15,7 @@ std::vector<Model> ModelLoader::loadModel(const char *filepath) {
     std::string basepath = "";
 
     int i;
-    for (i = (fp.size() - 1); fp[i] != '/'; i--) {
+    for (i = (fp.size() - 1); (fp[i] != '/' && i >= 0); i--) {
         filename = fp[i]  + filename;
     }
 
@@ -45,15 +47,15 @@ std::vector<Model> ModelLoader::loadModel(const char *filepath) {
 
             Vertex v;
 
-            v.XYZW[0] = shapes[i].mesh.positions[i + 0];
-            v.XYZW[1] = shapes[i].mesh.positions[i + 1];
-            v.XYZW[2] = shapes[i].mesh.positions[i + 2];
+            v.XYZW[0] = shapes[i].mesh.positions[j + 0];
+            v.XYZW[1] = shapes[i].mesh.positions[j + 1];
+            v.XYZW[2] = shapes[i].mesh.positions[j + 2];
             v.XYZW[3] = 1; /* Homogeneous */
 
             /* TODO: color, et cetera */
-            v.RGBA[0] = 0.0f;
-            v.RGBA[1] = 0.0f;
-            v.RGBA[2] = 0.0f;
+            v.RGBA[0] = 1.0f;
+            v.RGBA[1] = 1.0f;
+            v.RGBA[2] = 1.0f;
             v.RGBA[3] = 0.0f;
 
             m.addVert(v);
@@ -71,14 +73,4 @@ std::vector<Model> ModelLoader::loadModel(const char *filepath) {
 
 }
 
-/*
-int main(int argc, char *argv[]) {
-
-    try {
-        std::vector<Model> models = ModelLoader::loadModel((const char *)argv[1]);
-        std::cout << models.size() << std::endl;
-    } catch (int e) {
-        std::cerr << "Exception #" << e << std::endl;
-    }
 }
-*/
