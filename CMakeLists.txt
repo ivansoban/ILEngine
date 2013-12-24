@@ -17,11 +17,13 @@ if(GLEW_FOUND)
 endif(GLEW_FOUND)
 
 add_subdirectory(thirdparty/glfw-3.0.3/)
+add_subdirectory(thirdparty/assimp/)
 
 include_directories(${GLEW_INCLUDE_PATH}
     ${GLM_INCLUDE_DIRS}
     /opt/local/include
-    thirdparty/glfw-3.0.3/include)
+    thirdparty/glfw-3.0.3/include
+    thirdparty/assimp/include)
 
 IF(APPLE)
     SET(EXTRA_LIBS "-framework Cocoa -framework OpenGL")
