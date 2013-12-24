@@ -1,0 +1,1 @@
+/usr/bin/c++    -Wl,-search_paths_first -Wl,-headerpad_max_install_names   CMakeFiles/gtest_dll_test_.dir/test/gtest_all_test.cc.o  -o gtest_dll_test_  -L/Users/ivansoban/dev/gtest-1.7.0/build/src  libgtest_dll.dylib -Wl,-rpath,/Users/ivansoban/dev/gtest-1.7.0/build/src 

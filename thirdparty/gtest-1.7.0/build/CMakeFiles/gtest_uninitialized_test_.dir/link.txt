@@ -1,0 +1,1 @@
+/usr/bin/c++    -Wl,-search_paths_first -Wl,-headerpad_max_install_names   CMakeFiles/gtest_uninitialized_test_.dir/test/gtest_uninitialized_test_.cc.o  -o gtest_uninitialized_test_  -L/Users/ivansoban/dev/gtest-1.7.0/build/src  libgtest.a -Wl,-rpath,/Users/ivansoban/dev/gtest-1.7.0/build/src 

@@ -1,0 +1,1 @@
+/usr/bin/c++    -Wl,-search_paths_first -Wl,-headerpad_max_install_names   CMakeFiles/gtest_xml_outfile2_test_.dir/test/gtest_xml_outfile2_test_.cc.o  -o gtest_xml_outfile2_test_  -L/Users/ivansoban/dev/gtest-1.7.0/build/src  libgtest_main.a libgtest.a -Wl,-rpath,/Users/ivansoban/dev/gtest-1.7.0/build/src 
