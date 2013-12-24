@@ -1,6 +1,8 @@
 cmake_minimum_required(VERSION 2.8)
 project(engine)
 
+add_definitions("-g")
+
 if(CMAKE_COMPILER_IS_GNUCXX)
     set(CMAKE_C_FLAGS_DEBUG "-g -Wall -Wextra -DDEBUG -D_DEBUG")
     set(CMAKE_CXX_FLAGS_DEBUG "-g -Wall -Wextra -DDEBUG -D_DEBUG")
@@ -8,37 +10,44 @@ endif(CMAKE_COMPILER_IS_GNUCXX)
 
 ####################
 
-find_package(GLFW REQUIRED)
-
-if(GLFW_FOUND)
-    message(STATUS "Found GLFW")
-endif(GLFW_FOUND)
-
 find_package(GLEW REQUIRED)
 
-add_definitions(${GLFW_CFLAGS_OTHER})
+if(GLEW_FOUND)
+    message(STATUS "Found GLEW")
+endif(GLEW_FOUND)
 
-include_directories(${GLFW_INCLUDE_DIRS} ${GLEW_INCLUDE_PATH})
+add_subdirectory(thirdparty/glfw-3.0.3/)
 
-link_directories(${GLFW_LIBRARY_DIRS})
+include_directories(${GLEW_INCLUDE_PATH}
+    ${GLM_INCLUDE_DIRS}
+    /opt/local/include
+    thirdparty/glfw-3.0.3/include)
 
 IF(APPLE)
     SET(EXTRA_LIBS "-framework Cocoa -framework OpenGL")
-ELSE(APPLE)
-    SET(EXTRA_LIBS ${GLFW_LDFLAGS_OTHER})
 ENDIF(APPLE)
 
 set(engine_HEADER
     src/Model.h
     src/ModelLoader.h
     src/Object.h
-    src/Primitive.h
-    src/tiny_obj_loader.h)
+    src/tiny_obj_loader.h
+    src/Shader.h
+    src/Vertex.h
+    src/Scene.h
+    src/ShaderProgram.h
+    src/Error.h)
 
 set(engine_SOURCE
+    src/Engine.cpp
     src/Model.cpp
     src/ModelLoader.cpp
     src/Object.cpp
+    src/ShaderProgram.cpp
+    src/Shader.cpp
+    #src/Vertex.cpp
+    src/Scene.cpp
+    src/Error.cpp
     src/tiny_obj_loader.cc)
 
 add_executable(engine
@@ -47,10 +56,44 @@ add_executable(engine
 
 message(STATUS ${EXTRA_LIBS})
 message(STATUS ${GLEW_LIBRARY})
-message(STATUS ${GLFW_LIBRARIES})
 
 target_link_libraries(engine
-    ${GLFW_LIBRARIES}
     ${EXTRA_LIBS}
     ${GLEW_LIBRARY}
-    )
+    glfw ${GLFW_LIBRARIES})
+
+####################
+
+set(GTEST thirdparty/gtest-1.7.0/)
+set(TESTS
+    test/ModelTest.cpp src/Error.cpp src/Model.cpp)
+
+add_subdirectory(${GTEST} ${GTEST}build/)
+include_directories(${GTEST}include/)
+
+add_executable(modeltest ${TESTS})
+
+target_link_libraries(modeltest
+    gtest
+    ${EXTRA_LIBS})
+
+####################
+
+set(GTEST thirdparty/gtest-1.7.0/)
+set(TESTS
+    test/ShaderTest.cpp src/Error.cpp src/Shader.cpp src/ShaderProgram.cpp src/Model.cpp src/ModelLoader.cpp src/Object.cpp src/tiny_obj_loader.cc)
+
+add_executable(shadertest ${TESTS})
+
+target_link_libraries(shadertest
+    gtest
+    ${GLEW_LIBRARY}
+    glfw ${GLFW_LIBRARIES}
+    ${EXTRA_LIBS})
+
+####################
+
+enable_testing()
+
+add_test(model modeltest)
+add_test(shader shadertest)
