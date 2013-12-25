@@ -91,7 +91,7 @@ void Init() {
     );
 
     glGetError();
-    glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+    glClearColor(255.0f, 255.0f, 255.0f, 255.0f);
 
     glEnable(GL_DEPTH_TEST);
     glDepthFunc(GL_LESS);
@@ -119,14 +119,10 @@ GLFWwindow *InitWindow(int w, int h) {
 
 void MainLoop() {
 
-    std::vector<ILEngine::Model>   models  = ILEngine::ModelLoader::loadModel("../test/untitled.obj");
     std::vector<ILEngine::Object> objects;
 
-    for (auto it = models.begin(); it != models.end(); it++) {
-        ILEngine::Object o("test", true, gProg->programId());
-        o.setModel(*it);
-        objects.push_back(o);
-    }
+    ILEngine::Object o("../test/untitled.obj", "test", true, gProg->programId());
+    objects.push_back(o);
 
     ILEngine::Scene mainScene(std::string("main"), objects);
 

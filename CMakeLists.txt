@@ -8,7 +8,7 @@ if(CMAKE_COMPILER_IS_GNUCXX)
     set(CMAKE_CXX_FLAGS_DEBUG "-g -Wall -Wextra -DDEBUG -D_DEBUG")
 endif(CMAKE_COMPILER_IS_GNUCXX)
 
-####################
+#################### GLEW
 
 find_package(GLEW REQUIRED)
 
@@ -16,8 +16,21 @@ if(GLEW_FOUND)
     message(STATUS "Found GLEW")
 endif(GLEW_FOUND)
 
+#################### GLFW
+
 add_subdirectory(thirdparty/glfw-3.0.3/)
+
+#################### assimp
+
+find_package(ASSIMP REQUIRED)
+
+if(ASSIMP_FOUND)
+    message(STATUS "Found ASSIMP")
+endif(ASSIMP_FOUND)
+
 add_subdirectory(thirdparty/assimp/)
+
+####################
 
 include_directories(${GLEW_INCLUDE_PATH}
     ${GLM_INCLUDE_DIRS}
@@ -62,7 +75,8 @@ message(STATUS ${GLEW_LIBRARY})
 target_link_libraries(engine
     ${EXTRA_LIBS}
     ${GLEW_LIBRARY}
-    glfw ${GLFW_LIBRARIES})
+    glfw ${GLFW_LIBRARIES}
+    ${ASSIMP_LIBRARIES})
 
 ####################
 
