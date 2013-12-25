@@ -12,7 +12,6 @@
 
 #include "Scene.h"
 #include "ShaderProgram.h"
-#include "ModelLoader.h"
 #include "Error.h"
 
 /* Globals */

@@ -6,8 +6,6 @@
 #include "../src/Shader.h"
 #include "../src/ShaderProgram.h"
 #include "../src/Object.h"
-#include "../src/Model.h"
-#include "../src/ModelLoader.h"
 #include "gtest/gtest.h"
 
 namespace {
@@ -88,21 +86,11 @@ namespace {
         prog.detachAll();
     }
 
-    TEST_F(ShaderTest, TestModelLoading) {
-        std::vector<ILEngine::Model> models = ILEngine::ModelLoader::loadModel("../test/untitled.obj");
-        ASSERT_EQ(1, models.size());
-    }
-
     TEST_F(ShaderTest, ObjectCreation) {
         ILEngine::ShaderProgram prog(sv);
-        std::vector<ILEngine::Model> models = ILEngine::ModelLoader::loadModel("../test/untitled.obj");
-        ILEngine::Object o("test object", false, prog.programId());
+        ILEngine::Object o("../test/untitled.obj", "test object", false, prog.programId());
 
         EXPECT_STREQ("test object", o.getName().c_str());
-
-        o.setModel(models[0]);
-
-        EXPECT_EQ(models[0], o.getModel());
     }
 
 

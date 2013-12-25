@@ -67,7 +67,6 @@ void Object::draw() {
     glBindVertexArray(this->VAO);
     Error::ExitOnGLError("ERROR: Could not bind the VAO for drawing purposes");
 
-    fprintf(stderr, "%d\n", this->numFaces * 3);
     glDrawElements(GL_TRIANGLES, this->numFaces * 3, GL_UNSIGNED_INT, 0);
     //glDrawElements(GL_TRIANGLES, this->vertices.size(), GL_UNSIGNED_INT, (GLvoid*)0);
     Error::ExitOnGLError("ERROR: Could not draw the cube");

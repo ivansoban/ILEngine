@@ -8,7 +8,6 @@
 #include <glm/glm.hpp>
 #include <assimp/scene.h>
 
-#include "Model.h"
 #include "ShaderProgram.h"
 
 namespace ILEngine {

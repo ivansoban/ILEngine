@@ -43,27 +43,19 @@ IF(APPLE)
 ENDIF(APPLE)
 
 set(engine_HEADER
-    src/Model.h
-    src/ModelLoader.h
     src/Object.h
-    src/tiny_obj_loader.h
     src/Shader.h
-    src/Vertex.h
     src/Scene.h
     src/ShaderProgram.h
     src/Error.h)
 
 set(engine_SOURCE
     src/Engine.cpp
-    src/Model.cpp
-    src/ModelLoader.cpp
     src/Object.cpp
     src/ShaderProgram.cpp
     src/Shader.cpp
-    #src/Vertex.cpp
     src/Scene.cpp
-    src/Error.cpp
-    src/tiny_obj_loader.cc)
+    src/Error.cpp)
 
 add_executable(engine
     ${engine_SOURCE}
@@ -82,22 +74,10 @@ target_link_libraries(engine
 
 set(GTEST thirdparty/gtest-1.7.0/)
 set(TESTS
-    test/ModelTest.cpp src/Error.cpp src/Model.cpp)
+    test/ShaderTest.cpp src/Error.cpp src/Shader.cpp src/ShaderProgram.cpp src/Object.cpp)
 
-add_subdirectory(${GTEST} ${GTEST}build/)
-include_directories(${GTEST}include/)
-
-add_executable(modeltest ${TESTS})
-
-target_link_libraries(modeltest
-    gtest
-    ${EXTRA_LIBS})
-
-####################
-
-set(GTEST thirdparty/gtest-1.7.0/)
-set(TESTS
-    test/ShaderTest.cpp src/Error.cpp src/Shader.cpp src/ShaderProgram.cpp src/Model.cpp src/ModelLoader.cpp src/Object.cpp src/tiny_obj_loader.cc)
+include_directories(${GTEST}include)
+add_subdirectory(${GTEST})
 
 add_executable(shadertest ${TESTS})
 
@@ -105,11 +85,11 @@ target_link_libraries(shadertest
     gtest
     ${GLEW_LIBRARY}
     glfw ${GLFW_LIBRARIES}
+    ${ASSIMP_LIBRARIES}
     ${EXTRA_LIBS})
 
 ####################
 
 enable_testing()
 
-add_test(model modeltest)
 add_test(shader shadertest)
