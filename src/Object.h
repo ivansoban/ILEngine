@@ -15,11 +15,13 @@ namespace ILEngine {
     class Object {
         std::string objName;
         bool        hidden;
+
         GLuint      VBO; // Vertex Buffer Object
         //GLuint      IBO; // Index Buffer Object
         GLuint      VAO; // Vertex Array Object
 
         GLuint      program_id;
+        GLuint      texture_id;
 
         unsigned int numFaces;
         std::vector<unsigned int> indices;
@@ -30,6 +32,7 @@ namespace ILEngine {
         glm::mat4 ProjMatrix;
 
     void   GenAndBindBuffers(const aiScene *);
+    void   LoadTextures(const aiScene *);
     void   useProgram(GLuint);
     void   stopProgram(void);
     GLuint getAttribute(GLuint, const char *);

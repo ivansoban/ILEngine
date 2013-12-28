@@ -120,7 +120,7 @@ void MainLoop() {
 
     std::vector<ILEngine::Object> objects;
 
-    ILEngine::Object o("../test/untitled.obj", "test", true, gProg->programId());
+    ILEngine::Object o("../test/cube/cube.obj", "test", true, gProg->programId());
     objects.push_back(o);
 
     ILEngine::Scene mainScene(std::string("main"), objects);

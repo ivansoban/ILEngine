@@ -5,6 +5,7 @@
 #include <assimp/Importer.hpp>
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
+#include <IL/devil_cpp_wrapper.hpp>
 
 #include "Object.h"
 #include "Error.h"
@@ -24,7 +25,7 @@ Object::Object(std::string meshFile, std::string name, bool visibility, GLuint p
     const aiScene *scene = importer.ReadFile(meshFile, aiProcessPreset_TargetRealtime_Fast);
 
     this->GenAndBindBuffers(scene);
-
+    this->LoadTextures(scene);
 }
 
 Object::~Object() {
@@ -63,6 +64,13 @@ void Object::draw() {
     glUniformMatrix4fv(this->getUniform(this->program_id, "ModelMatrix"), 1, GL_FALSE, glm::value_ptr(ModelMatrix));
     glUniformMatrix4fv(this->getUniform(this->program_id, "ViewMatrix"), 1, GL_FALSE, glm::value_ptr(ViewMatrix));
     Error::ExitOnGLError("ERROR: Could not set the shader uniforms");
+
+    //Bind our texture in Texture Unit 0
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, this->texture_id);
+    // Set our "myTextureSampler" sampler to user Texture Unit 0
+    glUniform1i(this->getUniform(this->program_id, "textureSampler"), 0);
+    Error::ExitOnGLError("ERROR: Could not bind texture");
 
     glBindVertexArray(this->VAO);
     Error::ExitOnGLError("ERROR: Could not bind the VAO for drawing purposes");
@@ -171,32 +179,32 @@ void Object::GenAndBindBuffers(const aiScene *scene) {
     }
 
     // buffer for vertex normals
-/*    if (mesh->HasNormals()) {
-        glGenBuffers(1, &buffer);
-        glBindBuffer(GL_ARRAY_BUFFER, buffer);
+    if (mesh->HasNormals()) {
+        glGenBuffers(1, &(this->VBO));
+        glBindBuffer(GL_ARRAY_BUFFER, this->VBO);
         glBufferData(GL_ARRAY_BUFFER,
                      sizeof(float) * 3 * mesh->mNumVertices,
                      mesh->mNormals,
                      GL_STATIC_DRAW);
         glEnableVertexAttribArray(getAttribute(this->program_id, "normal"));
         glVertexAttribPointer(getAttribute(this->program_id, "normal"), 3, GL_FLOAT, 0, 0, 0);
-    }*/
+    }
       // buffer for vertex texture coordinates
-/*    if (mesh->HasTextureCoords(0)) {
+    if (mesh->HasTextureCoords(0)) {
         float *texCoords = (float *)malloc(sizeof(float) * 2 * mesh->mNumVertices);
         for (unsigned int k = 0; k < mesh->mNumVertices; ++k) {
             texCoords[k * 2]   = mesh->mTextureCoords[0][k].x;
             texCoords[k * 2 + 1] = mesh->mTextureCoords[0][k].y;
         }
-        glGenBuffers(1, &buffer);
-        glBindBuffer(GL_ARRAY_BUFFER, buffer);
+        glGenBuffers(1, &(this->VBO));
+        glBindBuffer(GL_ARRAY_BUFFER, this->VBO);
         glBufferData(GL_ARRAY_BUFFER,
                      sizeof(float) * 2 * mesh->mNumVertices,
                      texCoords,
                      GL_STATIC_DRAW);
-        glEnableVertexAttribArray(getAttribute(this->program_id, "texture"));
-        glVertexAttribPointer(getAttribute(this->program_id, "texture"), 2, GL_FLOAT, 0, 0, 0);
-    }*/
+        glEnableVertexAttribArray(getAttribute(this->program_id, "vertexUV"));
+        glVertexAttribPointer(getAttribute(this->program_id, "vertexUV"), 2, GL_FLOAT, 0, 0, 0);
+    }
 
     // unbind buffers
     glBindVertexArray(0);
@@ -204,6 +212,60 @@ void Object::GenAndBindBuffers(const aiScene *scene) {
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
     stopProgram();
 
+}
+
+void Object::LoadTextures(const aiScene* scene) { // Only one texture per object
+    ILboolean success;
+
+    /* initialization of DevIL */
+    ilInit();
+
+    /* scan scene's materials for textures */
+    aiString path;  // filename
+
+    aiReturn texFound = scene->mMaterials[0]->GetTexture(aiTextureType_DIFFUSE, 0, &path);
+    if (texFound != AI_SUCCESS) {
+        return;
+    }
+
+    /* create and fill array with DevIL texture ids */
+    ILuint imageId;
+    ilGenImages(1, &imageId);
+
+    /* create and fill array with GL texture ids */
+    glGenTextures(1, &(this->texture_id)); /* Texture name generation */
+
+    //save IL image ID
+    std::string filename(path.data);  // get filename
+
+    ilBindImage(imageId); /* Binding of DevIL image name */
+    ilEnable(IL_ORIGIN_SET);
+    ilOriginFunc(IL_ORIGIN_LOWER_LEFT);
+
+    success = ilLoadImage((ILstring)filename.c_str());
+    if (success) {
+        /* Convert image to RGBA */
+        ilConvertImage(IL_RGBA, IL_UNSIGNED_BYTE);
+
+        /* Create and load textures to OpenGL */
+        glBindTexture(GL_TEXTURE_2D, this->texture_id);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, ilGetInteger(IL_IMAGE_WIDTH),
+                     ilGetInteger(IL_IMAGE_HEIGHT), 0, GL_RGBA, GL_UNSIGNED_BYTE,
+                     ilGetData());
+    } else {
+        printf("Couldn't load Image: %s\n", filename.c_str());
+        // TODO: Better clean up!
+    }
+
+    /* Because we have already copied image data into texture data
+       we can release memory used by image. */
+    ilDeleteImages(1, &imageId);
+
+    glBindTexture(GL_TEXTURE_2D, 0);
+    //return success;
+    //return true;
 }
 
 }

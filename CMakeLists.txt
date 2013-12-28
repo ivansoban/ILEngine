@@ -30,6 +30,14 @@ endif(ASSIMP_FOUND)
 
 add_subdirectory(thirdparty/assimp/)
 
+#################### DevIL
+
+find_package(DevIL REQUIRED)
+
+if(DevIL_FOUND)
+    message(STATUS "Found DevIL")
+endif(DevIL_FOUND)
+
 ####################
 
 include_directories(${GLEW_INCLUDE_PATH}
@@ -68,7 +76,9 @@ target_link_libraries(engine
     ${EXTRA_LIBS}
     ${GLEW_LIBRARY}
     glfw ${GLFW_LIBRARIES}
-    ${ASSIMP_LIBRARIES})
+    ${ASSIMP_LIBRARIES}
+    ${ILU_LIBRARIES}
+    ${IL_LIBRARIES})
 
 ####################
 
@@ -86,7 +96,9 @@ target_link_libraries(shadertest
     ${GLEW_LIBRARY}
     glfw ${GLFW_LIBRARIES}
     ${ASSIMP_LIBRARIES}
-    ${EXTRA_LIBS})
+    ${EXTRA_LIBS}
+    ${ILU_LIBRARIES}
+    ${IL_LIBRARIES})
 
 ####################
 
