@@ -17,8 +17,10 @@ namespace ILEngine {
         bool        hidden;
 
         GLuint      VBO; // Vertex Buffer Object
-        //GLuint      IBO; // Index Buffer Object
+        GLuint      IBO; // Index Buffer Object
         GLuint      VAO; // Vertex Array Object
+        GLuint      NBO; // Normal Buffer Object
+        GLuint      TBO; // Texture Buffer Object
 
         GLuint      program_id;
         GLuint      texture_id;
@@ -26,6 +28,8 @@ namespace ILEngine {
         unsigned int numFaces;
         std::vector<unsigned int> indices;
         std::vector<float>        vertices;
+        std::vector<float>        normals;
+        std::vector<float>        UVcoord;
 
         glm::mat4 ModelMatrix;
         glm::mat4 ViewMatrix;
@@ -35,8 +39,8 @@ namespace ILEngine {
     void   LoadTextures(const aiScene *);
     void   useProgram(GLuint);
     void   stopProgram(void);
-    GLuint getAttribute(GLuint, const char *);
-    GLuint getUniform(GLuint, const char *);
+    GLint  getAttribute(GLuint, const char *);
+    GLint  getUniform(GLuint, const char *);
 
     public:
         Object(std::string, std::string, bool, GLuint);
