@@ -51,6 +51,7 @@ IF(APPLE)
 ENDIF(APPLE)
 
 set(engine_HEADER
+    src/Camera.h
     src/Object.h
     src/LightSource.h
     src/Shader.h
@@ -59,6 +60,8 @@ set(engine_HEADER
     src/Error.h)
 
 set(engine_SOURCE
+    src/ILEngine.cpp
+    src/Camera.cpp
     src/Engine.cpp
     src/Object.cpp
     src/LightSource.cpp
