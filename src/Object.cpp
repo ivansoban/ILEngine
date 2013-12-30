@@ -7,25 +7,27 @@
 #include <assimp/postprocess.h>
 #include <IL/devil_cpp_wrapper.hpp>
 
-#include "Object.h"
 #include "Error.h"
+#include "Object.h"
 
 namespace ILEngine {
 
 float CubeRotation = 0;
 clock_t LastTime = 0;
 
-Object::Object(std::string meshFile, std::string name, bool visibility, GLuint prog_id) : ModelMatrix(1.0f), ViewMatrix(1.0f), ProjMatrix(1.0f) {
+Object::Object(std::string meshFile,
+               std::string name,
+               bool visibility,
+               GLuint prog_id,
+               glm::vec3 loc) : ModelMatrix(1.0f), ViewMatrix(1.0f), ProjMatrix(1.0f) {
+
     this->objName = name;
     this->hidden = visibility;
     this->program_id = prog_id;
-    ViewMatrix = glm::translate(ViewMatrix, glm::vec3(0.0f, 0.0f, -4));
+    this->meshFile = meshFile;
+    this->parentScene = NULL;
+    ViewMatrix = glm::translate(ViewMatrix, loc);
 
-    Assimp::Importer importer;
-    const aiScene *scene = importer.ReadFile(meshFile, aiProcessPreset_TargetRealtime_Fast);
-
-    this->GenAndBindBuffers(scene);
-    this->LoadTextures(scene);
 }
 
 Object::~Object() {
@@ -37,12 +39,44 @@ Object::~Object() {
 
 }
 
+void Object::init(GLuint prog_id) {
+
+    if (this->program_id == -1) {
+        this->program_id = prog_id;
+    }
+
+    if (meshFile != "") {
+        Assimp::Importer importer;
+        const aiScene *scene = importer.ReadFile(meshFile, aiProcessPreset_TargetRealtime_Fast);
+
+        this->GenAndBindBuffers(scene);
+        this->LoadTextures(scene);
+    }
+
+}
+
 std::string Object::getName() {
     return this->objName;
 }
 
 bool Object::isHidden() {
     return this->hidden;
+}
+
+glm::vec3 Object::getLocation() {
+    return this->location;
+}
+
+void Object::setLocation(glm::vec3 loc) {
+    this->location = loc;
+}
+
+void Object::setParent(Scene *p) {
+    this->parentScene = p;
+}
+
+Scene* Object::parent() {
+    return this->parentScene;
 }
 
 void Object::draw() {

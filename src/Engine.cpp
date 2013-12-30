@@ -5,14 +5,16 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdexcept>
+#include <vector>
 
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 #include <glm/glm.hpp>
 
-#include "Scene.h"
 #include "ShaderProgram.h"
 #include "Error.h"
+#include "Scene.h"
+#include "Object.h"
 
 /* Globals */
 
@@ -117,13 +119,15 @@ GLFWwindow *InitWindow(int w, int h) {
 }
 
 void MainLoop() {
+    ILEngine::Scene mainScene(std::string("main"), gProg->programId());
 
-    std::vector<ILEngine::Object> objects;
+    ILEngine::Object o("../test/cube/cube.obj", "test", true, -1, glm::vec3(0.0f, 0.0f, -3.0f));
+    mainScene.addObject(o);
 
-    ILEngine::Object o("../test/cube/cube.obj", "test", true, gProg->programId());
-    objects.push_back(o);
+    ILEngine::LightSource l("", "MainLight", -1, glm::vec3(0.0f, 0.0f, 3.0f), 100.0f);
+    mainScene.addLight(l);
 
-    ILEngine::Scene mainScene(std::string("main"), objects);
+    mainScene.init();
 
     while(!glfwWindowShouldClose(WindowHandle)) {
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);

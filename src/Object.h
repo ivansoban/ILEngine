@@ -8,13 +8,10 @@
 #include <glm/glm.hpp>
 #include <assimp/scene.h>
 
-#include "ShaderProgram.h"
-
 namespace ILEngine {
 
+    class Scene;
     class Object {
-        std::string objName;
-        bool        hidden;
 
         GLuint      VBO; // Vertex Buffer Object
         GLuint      IBO; // Index Buffer Object
@@ -31,25 +28,40 @@ namespace ILEngine {
         std::vector<float>        normals;
         std::vector<float>        UVcoord;
 
+        void   GenAndBindBuffers(const aiScene *);
+        void   LoadTextures(const aiScene *);
+        void   useProgram(GLuint);
+        void   stopProgram(void);
+        GLint  getAttribute(GLuint, const char *);
+        GLint  getUniform(GLuint, const char *);
+
+    protected:
+        std::string objName;
+        bool        hidden;
+        std::string meshFile;
+
         glm::mat4 ModelMatrix;
         glm::mat4 ViewMatrix;
         glm::mat4 ProjMatrix;
 
-    void   GenAndBindBuffers(const aiScene *);
-    void   LoadTextures(const aiScene *);
-    void   useProgram(GLuint);
-    void   stopProgram(void);
-    GLint  getAttribute(GLuint, const char *);
-    GLint  getUniform(GLuint, const char *);
+        glm::vec3 location;
+
+        Scene *parentScene;
 
     public:
-        Object(std::string, std::string, bool, GLuint);
+        Object(std::string, std::string, bool, GLuint, glm::vec3);
         ~Object();
+
+        void init(GLuint);
 
         std::string getName();
         bool        isHidden();
+        glm::vec3   getLocation();
+        void        setLocation(glm::vec3);
+        void        setParent(Scene *);
+        Scene      *parent();
 
-        void draw();
+        virtual void draw();
     };
 
 }

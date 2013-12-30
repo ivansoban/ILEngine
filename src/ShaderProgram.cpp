@@ -3,9 +3,8 @@
 #include <GL/glew.h>
 #include <stdlib.h>
 
-#include "Shader.h"
-#include "ShaderProgram.h"
 #include "Error.h"
+#include "ShaderProgram.h"
 
 namespace ILEngine {
 

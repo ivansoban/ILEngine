@@ -52,6 +52,7 @@ ENDIF(APPLE)
 
 set(engine_HEADER
     src/Object.h
+    src/LightSource.h
     src/Shader.h
     src/Scene.h
     src/ShaderProgram.h
@@ -60,6 +61,7 @@ set(engine_HEADER
 set(engine_SOURCE
     src/Engine.cpp
     src/Object.cpp
+    src/LightSource.cpp
     src/ShaderProgram.cpp
     src/Shader.cpp
     src/Scene.cpp
