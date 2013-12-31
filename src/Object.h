@@ -10,7 +10,6 @@
 
 namespace ILEngine {
 
-    class Scene;
     class Object {
 
         GLuint      VBO; // Vertex Buffer Object
@@ -40,16 +39,14 @@ namespace ILEngine {
         bool        hidden;
         std::string meshFile;
 
-        glm::mat4 ModelMatrix;
-        glm::mat4 ViewMatrix;
-        glm::mat4 ProjMatrix;
+        glm::mat4  ModelMatrix;
+        glm::mat4 &ViewMatrix;
+        glm::mat4 &ProjMatrix;
 
         glm::vec3 location;
 
-        Scene *parentScene;
-
     public:
-        Object(std::string, std::string, bool, GLuint, glm::vec3);
+        Object(std::string, std::string, bool, GLuint, glm::vec3, glm::mat4 &, glm::mat4 &);
         ~Object();
 
         void init(GLuint);
@@ -58,8 +55,6 @@ namespace ILEngine {
         bool        isHidden();
         glm::vec3   getLocation();
         void        setLocation(glm::vec3);
-        void        setParent(Scene *);
-        Scene      *parent();
 
         virtual void draw();
     };

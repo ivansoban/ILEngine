@@ -1,3 +1,6 @@
+#ifndef __CAMERA_H__
+#define __CAMERA_H__
+
 #include <glm/glm.hpp>
 
 namespace ILEngine {
@@ -19,3 +22,5 @@ namespace ILEngine {
     };
 
 }
+
+#endif

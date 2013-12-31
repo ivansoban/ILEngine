@@ -32,7 +32,6 @@ void Scene::deleteByNames(std::vector<std::string> names, std::unordered_multima
 
 template <class T>
 void Scene::addObject(T o, std::unordered_multimap<std::string, T> & map) {
-    o.setParent(this);
     std::pair<std::string, T> newEntry(o.getName(), o);
     map.insert(newEntry);
 }
@@ -41,7 +40,6 @@ template <class T>
 void Scene::addObjects(std::vector<T> objects, std::unordered_multimap<std::string, T> & map) {
     int i;
     for (i = 0; i < objects.size(); i++) {
-        objects[i].setParent(this);
         std::pair<std::string, T> newEntry(objects[i].getName(), objects[i]);
         map.insert(newEntry);
     }

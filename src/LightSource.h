@@ -11,7 +11,7 @@ namespace ILEngine {
         float intensity;
 
     public:
-        LightSource(std::string, std::string, GLuint, glm::vec3, float);
+        LightSource(std::string, std::string, GLuint, glm::vec3, float, glm::mat4 &, glm::mat4 &);
         void draw();
     };
 

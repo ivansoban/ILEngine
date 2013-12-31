@@ -15,26 +15,13 @@
 #include "ShaderProgram.h"
 #include "Error.h"
 
-/* Globals */
+ILEngine::Engine *engine = NULL;
 
-int CurrentWidth = 800,
-    CurrentHeight = 600;
-
-ILEngine::ShaderProgram *gProg = NULL; /* Default shaderProgram */
-
-GLFWwindow *WindowHandle = NULL;
-
-/* Engine Functions */
-
-GLFWwindow *InitWindow(int, int);
-void Init(void);
 void MainLoop(void);
-void Clean(void);
-
-/* Functions begin */
 
 int main(int argc, char *argv[]) {
-    Init();
+    engine = new ILEngine::Engine(800, 600);
+    engine->initEngine();
 
     /* Create Shaders */
     ILEngine::Shader vert("../src/SimpleShader.vertex.glsl", GL_VERTEX_SHADER);
@@ -44,101 +31,45 @@ int main(int argc, char *argv[]) {
     shaders.push_back(vert);
     shaders.push_back(frag);
 
-    /* Create Program */
-    gProg = new ILEngine::ShaderProgram(shaders);
+    engine->setDefaultProgram(shaders);
 
     MainLoop();
-    Clean();
+
+    engine->clean();
 }
 
-void Init() {
-
-    if (!glfwInit()) {
-        exit(EXIT_FAILURE);
-    }
-
-    /*
-     * This wierd shit below is needed? Apple . . .
-     * Request 3.3 and get 4.1. Whatever, better
-     * than 2.1.
-     * */
-
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
-    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-    glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
-
-    WindowHandle = InitWindow(CurrentWidth, CurrentHeight);
-
-    glfwMakeContextCurrent(WindowHandle);
-    //glfwSetErrorCallback(error_callback);
-    //glfwSetWindowSizeCallback(WindowHandle, window_size_callback);
-    //glfwSetKeyCallback(WindowHandle, key_callback);
-
-    /*
-     * Important GLEW init. Needs to be done after context creation.
-     * */
-    glewExperimental = true; // Need for core profile.
-    if(glewInit() != GLEW_OK) {
-        exit(EXIT_FAILURE);
-    }
-
-
-    fprintf(
-        stdout,
-        "INFO: OpenGL Version: %s\n",
-        glGetString(GL_VERSION)
-    );
-
-    glGetError();
-    glClearColor(255.0f, 255.0f, 255.0f, 255.0f);
-
-    glEnable(GL_DEPTH_TEST);
-    glDepthFunc(GL_LESS);
-    ILEngine::Error::ExitOnGLError("ERROR: Could not set OpenGL depth testing options");
-
-    glGetError();
-    glEnable(GL_CULL_FACE);
-    glCullFace(GL_BACK);
-    glFrontFace(GL_CCW);
-    ILEngine::Error::ExitOnGLError("ERROR: Could not set OpenGL culling options");
-}
-
-GLFWwindow *InitWindow(int w, int h) {
-    GLFWwindow* window;
-
-    window = glfwCreateWindow(w, h, WINDOW_TITLE, NULL, NULL);
-    if (!window)
-    {
-        glfwTerminate();
-        exit(EXIT_FAILURE);
-    }
-
-    return window;
-}
 
 void MainLoop() {
+    ILEngine::Scene mainScene(std::string("main"), engine->getDefaultEngineProgram());
 
-    std::vector<ILEngine::Object> objects;
+    ILEngine::Object o1("../test/cube/cube.obj",
+            "test", true, -1,
+            glm::vec3(-2, -2, -2.5),
+            engine->view(glm::vec3(-2, -2, -2.5)),
+            engine->proj());
+    ILEngine::Object o2("../test/cube/cube.obj",
+            "test", true, -1,
+            glm::vec3(-2, -2, -3),
+            engine->view(),
+            engine->proj());
 
-    ILEngine::Object o("../test/cube/cube.obj", "test", true, gProg->programId());
-    objects.push_back(o);
+    mainScene.addObject(o1);
+    mainScene.addObject(o2);
+/*
+    ILEngine::LightSource l("", "MainLight", -1, glm::vec3(0.0f, 0.0f, 3.0f), 100.0f);
+    mainScene.addLight(l);
+*/
+    mainScene.init();
 
-    ILEngine::Scene mainScene(std::string("main"), objects);
-
-    while(!glfwWindowShouldClose(WindowHandle)) {
+    while(!glfwWindowShouldClose(engine->window())) {
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         mainScene.renderScene();
 
-        glfwSwapBuffers(WindowHandle);
+        glfwSwapBuffers(engine->window());
         glfwPollEvents();
     }
 
 }
 
-void Clean() {
-    delete gProg;
-    glfwDestroyWindow(WindowHandle);
-    glfwTerminate();
-}
+

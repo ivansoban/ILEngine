@@ -19,15 +19,17 @@ Object::Object(std::string meshFile,
                std::string name,
                bool visibility,
                GLuint prog_id,
-               glm::vec3 loc) : ModelMatrix(1.0f), ViewMatrix(1.0f), ProjMatrix(1.0f) {
+               glm::vec3 loc,
+               glm::mat4 &v,
+               glm::mat4 &p)
+: ModelMatrix(1.0f), ViewMatrix(v), ProjMatrix(p) {
 
     this->objName = name;
     this->hidden = visibility;
     this->program_id = prog_id;
     this->meshFile = meshFile;
-    this->parentScene = NULL;
-    ViewMatrix = glm::translate(ViewMatrix, loc);
 
+    this->ModelMatrix = glm::translate(ModelMatrix, loc);
 }
 
 Object::~Object() {
@@ -71,14 +73,6 @@ void Object::setLocation(glm::vec3 loc) {
     this->location = loc;
 }
 
-void Object::setParent(Scene *p) {
-    this->parentScene = p;
-}
-
-Scene* Object::parent() {
-    return this->parentScene;
-}
-
 void Object::draw() {
     glGetError();
     clock_t Now = clock();
@@ -86,17 +80,15 @@ void Object::draw() {
     if (LastTime == 0)
         LastTime = Now;
 
-    CubeRotation += 360.0f * ((float)(Now - LastTime) / CLOCKS_PER_SEC);
+    CubeRotation += 10.0f * ((float)(Now - LastTime) / CLOCKS_PER_SEC);
     LastTime = Now;
 
-    ModelMatrix = glm::rotate(glm::mat4(1.0f), CubeRotation, glm::vec3(1.0f, 1.0f, 0.0f));
-
-    ProjMatrix = glm::perspective(60.0f, (float)800 / 600, 1.0f, 100.0f);
+    this->ModelMatrix = glm::rotate(this->ModelMatrix, CubeRotation, glm::vec3(1.0f, 1.0f, 0.0f));
 
     this->useProgram(this->program_id);
-    glUniformMatrix4fv(this->getUniform(this->program_id, "ProjectionMatrix"), 1, GL_FALSE, glm::value_ptr(ProjMatrix));
-    glUniformMatrix4fv(this->getUniform(this->program_id, "ModelMatrix"), 1, GL_FALSE, glm::value_ptr(ModelMatrix));
-    glUniformMatrix4fv(this->getUniform(this->program_id, "ViewMatrix"), 1, GL_FALSE, glm::value_ptr(ViewMatrix));
+    glUniformMatrix4fv(this->getUniform(this->program_id, "ProjectionMatrix"), 1, GL_FALSE, glm::value_ptr(this->ProjMatrix));
+    glUniformMatrix4fv(this->getUniform(this->program_id, "ModelMatrix"), 1, GL_FALSE, glm::value_ptr(this->ModelMatrix));
+    glUniformMatrix4fv(this->getUniform(this->program_id, "ViewMatrix"), 1, GL_FALSE, glm::value_ptr(this->ViewMatrix));
     Error::ExitOnGLError("ERROR: Could not set the shader uniforms");
 
     glBindVertexArray(this->VAO);

@@ -8,7 +8,10 @@ LightSource::LightSource(std::string meshFile,
                          std::string name,
                          GLuint prog_id,
                          glm::vec3 loc,
-                         float intensity) : Object(meshFile, name, false, prog_id, loc) {
+                         float intensity,
+                         glm::mat4 &v,
+                         glm::mat4 &p)
+: Object(meshFile, name, false, prog_id, loc, v, p) {
 
    this->intensity = intensity;
 
