@@ -69,12 +69,13 @@ namespace {
         ILEngine::ShaderProgram prog(sv);
         prog.use();
 
-        EXPECT_EQ(0, prog.attribute("vert"));
-        EXPECT_EQ(1, prog.attribute("color"));
+        ASSERT_NO_THROW(prog.attribute("vert"));
+        ASSERT_NO_THROW(prog.attribute("norm"));
+        ASSERT_NO_THROW(prog.attribute("vertexUV"));
 
-        EXPECT_EQ(8, prog.uniform("ModelMatrix"));
-        EXPECT_EQ(0, prog.uniform("ViewMatrix"));
-        EXPECT_EQ(4, prog.uniform("ProjectionMatrix"));
+        ASSERT_NO_THROW(prog.uniform("ModelMatrix"));
+        ASSERT_NO_THROW(prog.uniform("ViewMatrix"));
+        ASSERT_NO_THROW(prog.uniform("ProjectionMatrix"));
 
         prog.stop();
     }
@@ -87,8 +88,15 @@ namespace {
     }
 
     TEST_F(ShaderTest, ObjectCreation) {
+        glm::mat4 test(1.0f);
         ILEngine::ShaderProgram prog(sv);
-        ILEngine::Object o("../test/untitled.obj", "test object", false, prog.programId());
+        ILEngine::Object o("../test/untitled.obj",
+                           "test object",
+                           false,
+                           prog.programId(),
+                           glm::vec3(0, 0, 0),
+                           test,
+                           test);
 
         EXPECT_STREQ("test object", o.getName().c_str());
     }
