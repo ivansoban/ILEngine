@@ -47,7 +47,6 @@ ShaderProgram::~ShaderProgram() {
 
     glGetError();
     if (this->program_id != 0) {
-        fprintf(stderr, "%d\n", this->program_id);
         glDeleteProgram(this->program_id);
         this->program_id = 0;
     }

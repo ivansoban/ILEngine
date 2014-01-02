@@ -43,22 +43,19 @@ void MainLoop() {
     ILEngine::Scene mainScene(std::string("main"), engine->getDefaultEngineProgram());
 
     ILEngine::Object o1("../test/cube/cube.obj",
-            "test", true, -1,
+            "test", true, DEFAULT_SHADER,
             glm::vec3(-2, -2, -2.5),
             engine->view(glm::vec3(-2, -2, -2.5)),
             engine->proj());
     ILEngine::Object o2("../test/cube/cube.obj",
-            "test", true, -1,
+            "test", true, DEFAULT_SHADER,
             glm::vec3(-2, -2, -3),
             engine->view(),
             engine->proj());
 
     mainScene.addObject(o1);
     mainScene.addObject(o2);
-/*
-    ILEngine::LightSource l("", "MainLight", -1, glm::vec3(0.0f, 0.0f, 3.0f), 100.0f);
-    mainScene.addLight(l);
-*/
+
     mainScene.init();
 
     while(!glfwWindowShouldClose(engine->window())) {

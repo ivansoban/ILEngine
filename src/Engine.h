@@ -13,6 +13,8 @@
 #include <GLFW/glfw3.h>
 #include <glm/glm.hpp>
 
+#include "common.h"
+
 #include "ShaderProgram.h"
 
 #include "Camera.h"

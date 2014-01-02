@@ -1,3 +1,4 @@
+#include <iostream>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
@@ -7,6 +8,7 @@
 #include <assimp/postprocess.h>
 #include <IL/devil_cpp_wrapper.hpp>
 
+#include "common.h"
 #include "Error.h"
 #include "Object.h"
 
@@ -43,16 +45,28 @@ Object::~Object() {
 
 void Object::init(GLuint prog_id) {
 
-    if (this->program_id == -1) {
+    if (this->program_id == DEFAULT_SHADER) {
         this->program_id = prog_id;
     }
 
     if (meshFile != "") {
+        std::cout << "Initializing Object '"
+                  << this->objName
+                  << "' from mesh file '"
+                  << meshFile
+                  << "'."
+                  << std::endl;
+
         Assimp::Importer importer;
         const aiScene *scene = importer.ReadFile(meshFile, aiProcessPreset_TargetRealtime_Fast);
 
         this->GenAndBindBuffers(scene);
         this->LoadTextures(scene);
+    } else {
+        std::cout << "Initializing Object '"
+                  << this->objName
+                  << "' without meshfile."
+                  << std::endl;
     }
 
 }
@@ -86,6 +100,7 @@ void Object::draw() {
     this->ModelMatrix = glm::rotate(this->ModelMatrix, CubeRotation, glm::vec3(1.0f, 1.0f, 0.0f));
 
     this->useProgram(this->program_id);
+
     glUniformMatrix4fv(this->getUniform(this->program_id, "ProjectionMatrix"), 1, GL_FALSE, glm::value_ptr(this->ProjMatrix));
     glUniformMatrix4fv(this->getUniform(this->program_id, "ModelMatrix"), 1, GL_FALSE, glm::value_ptr(this->ModelMatrix));
     glUniformMatrix4fv(this->getUniform(this->program_id, "ViewMatrix"), 1, GL_FALSE, glm::value_ptr(this->ViewMatrix));
@@ -99,12 +114,11 @@ void Object::draw() {
     Error::ExitOnGLError("ERROR: Could not bind active texture");
     glBindTexture(GL_TEXTURE_2D, this->texture_id);
     Error::ExitOnGLError("ERROR: Could not bind texture");
-    // Set our "myTextureSampler" sampler to user Texture Unit 0
     glUniform1i(this->getUniform(this->program_id, "textureSampler"), 0);
     Error::ExitOnGLError("ERROR: Could not set texture uniform");
 
     glDrawElements(GL_TRIANGLES, this->numFaces * 3, GL_UNSIGNED_INT, 0);
-    Error::ExitOnGLError("ERROR: Could not draw the cube");
+    Error::ExitOnGLError("ERROR: Could not draw " + this->objName);
 
     glBindVertexArray(0);
     this->stopProgram();
@@ -160,12 +174,15 @@ void Object::GenAndBindBuffers(const aiScene *scene) {
     aiMesh *mesh = scene->mMeshes[0];
 
     if (!mesh) {
-        fprintf(stderr, "No Mesh!\n");
+        std::cerr << "Tried to load "
+                  << this->objName
+                  << " but no mesh was found."
+                  << std::endl;
         return;
     }
 
-    for (unsigned int t = 0; t < mesh->mNumFaces; ++t) {
-        const aiFace* face = &mesh->mFaces[t];
+    for (unsigned int i = 0; i < mesh->mNumFaces; i++) {
+        const aiFace* face = &mesh->mFaces[i];
 
         this->indices.push_back(face->mIndices[0]);
         this->indices.push_back(face->mIndices[1]);
@@ -183,7 +200,7 @@ void Object::GenAndBindBuffers(const aiScene *scene) {
     // generate Vertex Array for mesh
     glGenVertexArrays(1, &(this->VAO));
     glBindVertexArray(VAO);
-    Error::ExitOnGLError("ERROR: Could not generate and bind VAO");
+    Error::ExitOnGLError("ERROR: Could not generate and bind VAO for " + this->objName);
 
     // buffer for faces
     glGenBuffers(1, &(this->IBO));
@@ -192,7 +209,7 @@ void Object::GenAndBindBuffers(const aiScene *scene) {
                  sizeof(unsigned int) * this->numFaces * 3,
                  &(this->indices[0]),
                  GL_STATIC_DRAW);
-    Error::ExitOnGLError("ERROR: Could not bind index data to IBO");
+    Error::ExitOnGLError("ERROR: Could not bind index data to IBO for " + this->objName);
 
     // buffer for vertex positions
     if (mesh->HasPositions()) {
@@ -204,7 +221,7 @@ void Object::GenAndBindBuffers(const aiScene *scene) {
                      GL_STATIC_DRAW);
         glEnableVertexAttribArray(getAttribute(this->program_id, "vert"));
         glVertexAttribPointer(getAttribute(this->program_id, "vert"), 3, GL_FLOAT, 0, 0, 0);
-        Error::ExitOnGLError("ERROR: Could not bind vertex data to VBO");
+        Error::ExitOnGLError("ERROR: Could not bind vertex data to VBO for " + this->objName);
     }
 
     // buffer for vertex normals
@@ -222,16 +239,15 @@ void Object::GenAndBindBuffers(const aiScene *scene) {
                      &(this->normals[0]),
                      GL_STATIC_DRAW);
         glEnableVertexAttribArray(1/*getAttribute(this->program_id, "norm")*/);
-        Error::ExitOnGLError("ERROR: Could not bind normal data to NBO4");
         glVertexAttribPointer(1/*getAttribute(this->program_id, "norm")*/, 3, GL_FLOAT, 0, 0, 0);
-        Error::ExitOnGLError("ERROR: Could not bind normal data to NBO5");
+        Error::ExitOnGLError("ERROR: Could not bind normal data to NBO for " + this->objName);
     }
 
     // buffer for vertex texture coordinates
     if (mesh->HasTextureCoords(0)) {
-        for (unsigned int k = 0; k < mesh->mNumVertices; ++k) {
-            this->UVcoord.push_back(mesh->mTextureCoords[0][k].x);
-            this->UVcoord.push_back(mesh->mTextureCoords[0][k].y);
+        for (unsigned int i = 0; i < mesh->mNumVertices; i++) {
+            this->UVcoord.push_back(mesh->mTextureCoords[0][i].x);
+            this->UVcoord.push_back(mesh->mTextureCoords[0][i].y);
         }
 
         glGenBuffers(1, &(this->TBO));
@@ -242,7 +258,7 @@ void Object::GenAndBindBuffers(const aiScene *scene) {
                      GL_STATIC_DRAW);
         glEnableVertexAttribArray(getAttribute(this->program_id, "vertexUV"));
         glVertexAttribPointer(getAttribute(this->program_id, "vertexUV"), 2, GL_FLOAT, 0, 0, 0);
-        Error::ExitOnGLError("ERROR: Could not bind texture data");
+        Error::ExitOnGLError("ERROR: Could not bind texture data for " + this->objName);
     }
 
     // unbind buffers
@@ -260,14 +276,15 @@ void Object::LoadTextures(const aiScene* scene) { // Only one texture per object
     /* initialization of DevIL */
     ilInit();
 
-    aiString path;  // filename
+    aiString path;
     /* scan scene's materials for textures */
     for (unsigned int m = 0; m < scene->mNumMaterials; m++) {
         int texIndex = 0;
 
         aiReturn texFound = scene->mMaterials[m]->GetTexture(aiTextureType_DIFFUSE, texIndex, &path);
         while (texFound == AI_SUCCESS) {
-            // more textures?
+            /* Mesh files should only have one mesh */
+            /* This will get the last mesh in the file in the case of multiple meshes */
             texIndex++;
             texFound = scene->mMaterials[m]->GetTexture(aiTextureType_DIFFUSE, texIndex, &path);
         }
@@ -279,7 +296,7 @@ void Object::LoadTextures(const aiScene* scene) { // Only one texture per object
 
     /* create and fill array with GL texture ids */
     glGenTextures(1, &(this->texture_id)); /* Texture name generation */
-    Error::ExitOnGLError("ERROR: Could not generate textures");
+    Error::ExitOnGLError("ERROR: Could not generate textures for " + this->objName);
 
     //save IL image ID
     std::string filename(std::string("../test/cube/") + path.data);  // get filename
@@ -300,10 +317,11 @@ void Object::LoadTextures(const aiScene* scene) { // Only one texture per object
         glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, ilGetInteger(IL_IMAGE_WIDTH),
                      ilGetInteger(IL_IMAGE_HEIGHT), 0, GL_RGBA, GL_UNSIGNED_BYTE,
                      ilGetData());
-        Error::ExitOnGLError("ERROR: Could not load textures");
+        Error::ExitOnGLError("ERROR: Could not load textures for" + this->objName);
     } else {
-        printf("Couldn't load Image: %s\n", filename.c_str());
-        // TODO: Better clean up!
+        std::cerr << "Couldn't load Image: "
+                  << filename.c_str()
+                  << std::endl;
     }
 
     /* Because we have already copied image data into texture data
